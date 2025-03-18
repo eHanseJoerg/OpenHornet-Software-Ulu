@@ -4,10 +4,10 @@
 
 #include <FastLED.h>
 
-#define DATA_PIN     5       // What data pin are the LEDs conencted to? BL#1 = 13, BL#2 = 12, BL#3 = 11 etc.
+#define DATA_PIN     10       // What data pin are the LEDs conencted to? BL#1 = 13, BL#2 = 12, BL#3 = 11 etc.
 #define LED_TYPE     WS2812B  // OPENHORNET backlighting LEDs are WS2812B
 #define COLOUR_ORDER GRB      // OPENHORNET backlighting LEDs are GRB (green, red, blue)
-#define NUM_LEDS     150       // Set it to the number of LEDs you have connected.
+#define NUM_LEDS     300       // Set it to the number of LEDs you have connected.
 #define BRIGHTNESS   100      // LED Brightness 0 = Off, 255 = 100%.
 #define SOLID_SPEED  1000     // How long each solid colour is held in ms.
 #define CHASE_SPEED  50      // How fast the chase goes in ms

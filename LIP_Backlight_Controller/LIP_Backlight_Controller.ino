@@ -61,16 +61,15 @@
 
 /**
  * @file OH_LIP_BL_controller.ino
- * @author Higgins
+ * @author Higgins, Ulukaii
  * @date <01.09.2024>
- * @version 0.0.1
+ * @version 0.0.2
  * @warning This code is for HUD PANEL v.2 (56 instead of 50 LEDs), SPIN RCVY PANEL v2.1 (63 LEDs, Spin indicator two non-subsequent LEDs)
  * and ANT SEL v2 (13 LEDs).
  * @brief Backlight controller
  * Not implemented yet: 
  * - Logic function to check whether DCS is running
  * - WARN/CAUT brightness
- * - Rotary encoder on SIM PWR PANEL
  *
  * Due to the code's length the sections are separated by highly visible headers.
  *
@@ -115,9 +114,9 @@ const uint8_t LIP_BL_CH2  =    12;
 const uint8_t LIP_BL_CH2_COUNT  =    120;
 const uint8_t UIP_BL_CH1  =    11;
 const uint8_t UIP_BL_CH1_COUNT  =    208;
-const uint8_t UIP_BL_CH2  =    10;
+const uint8_t UIP_BL_CH2  =    9;
 const uint8_t UIP_BL_CH2_COUNT  =    200;
-const uint8_t LC_BL_CH1   =     9;
+const uint8_t LC_BL_CH1   =     10;                     //non std 10, da mein Port BL#5 (Pin 9) am Arduino nicht funktioniert
 const uint8_t LC_BL_CH1_COUNT   =     233;
 const uint8_t LC_BL_CH2   =     8;
 const uint8_t LC_BL_CH2_COUNT   =     250;
@@ -128,7 +127,7 @@ const uint16_t RC_BL_CH2_COUNT   =     380;
 const uint8_t BL_CH9      =     5;
 const uint8_t BL_CH10     =     4;
 
-// Define the pins for the brightness encoder on Sim Pwr Panel, create encoder object
+// Define the pins for the brightness encoder on Sim Pwr Panel
 const int pinA = 22;  // Pin A of the encoder
 const int pinB = 23;  // Pin B of the encoder
 const int pinSw1 = 24;  // Pin for the switch
@@ -1315,32 +1314,6 @@ DcsBios::IntegerBuffer consolesDimmerBuffer(0x7544, 0xffff, 0, onConsolesDimmerC
     DcsBios::IntegerBuffer clipLGenLtBuffer(0x74a8, 0x0100, 8, onClipLGenLtChange);
 
 
-
-//DcsBios::RotaryEncoder instPnlDimmer("INST_PNL_DIMMER", "DEC", "INC", 22, 23);
-// Define an onTurnleft handler.
-//void onTurnleft() {
-  //long currentPosition = lastPosition -10;
-  //sendDcsBiosMessage("INST_PNL_DIMMER", currentPosition);
-  //lastPosition = currentPosition;
-  // If the position has changed, set brightness to a new level
-  //if (currentPosition != lastPosition) {
-    //sendDcsBiosMessage("CONSOLES_DIMMER", currentPosition);
-    //sendDcsBiosMessage("INST_PNL_DIMMER", currentPosition);
-    //lastPosition = currentPosition;
-  //}
-//}
-
-// Define an onTurnRight handler.
-//void onTurnRight() {
-  //int currentPosition = lastPosition +10;
-  //sendDcsBiosMessage("INST_PNL_DIMMER", currentPosition);
-//  lastPosition = currentPosition;
-//}
-
-// Create a rotary encoder with the clk signal pin number, dt signal pin number,
-// onTurnleft & onTurnRight handler.
-//CtrlEnc enc(pinA, pinB, onTurnleft, onTurnRight);
-
 DcsBios::RotaryEncoder instPnlDimmer("INST_PNL_DIMMER", "-3200", "+3200", pinA, pinB);
 DcsBios::RotaryEncoder consolesDimmer("CONSOLES_DIMMER", "-3200", "+3200", pinA, pinB);
 
@@ -1351,12 +1324,6 @@ DcsBios::RotaryEncoder consolesDimmer("CONSOLES_DIMMER", "-3200", "+3200", pinA,
 * only once at the programm start, belongs in this function.
 */
 void setup() {
-
-    // Set D22 and D23 as input pins
-    //pinMode(22, INPUT);
-    //pinMode(23, INPUT);
-    //pinMode(pinSw1, INPUT_PULLUP);  // Set the switch pin to input with internal pull-up
-    //enc.begin(pinA,pinB,18, pinSw1);
 
   //Run DCS Bios setup function
   DcsBios::setup();
@@ -1369,8 +1336,6 @@ void setup() {
       LC_2.begin();
       RC_1.begin();
       RC_2.begin();
-
-
 
   // Show the neopixel 
       LIP_1.show();
