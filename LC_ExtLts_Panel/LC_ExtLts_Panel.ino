@@ -32,8 +32,8 @@
 
 /**
  * @file 4A4A2-EXT_LIGHTS_PANEL.ino
- * @author Arribe
- * @date 03.03.2024
+ * @author Arribe, Ulukaii
+ * @date 28.03.2025
  * @version 0.0.1
  * @copyright Copyright 2016-2024 OpenHornet. Licensed under the Apache License, Version 2.0.
  * @brief Controls the EXT LIGHTS panel, GEN TIE panel & ECM DISP switch.
@@ -52,7 +52,7 @@
  * A2  | Position Lights Brightness
  * 3   | Strobe Bright
  * A1  | Inter-Wing Tank Inhibit
- * 4   | Gen Tie Switch
+ * 9   | Gen Tie Switch      <----------- Change by Ulukaii: Pin 9 instead of 4
  * A0  | Counter Measure Dispenser Switch
  * 
  * @brief The following #define tells DCS-BIOS that this is a RS-485 slave device.
@@ -94,13 +94,14 @@
 #define POSI_A A2  ///< Position Lights Brightness
 #define STROBE_SW2 3   ///< Strobe Bright
 #define INTRW_SW1 A1  ///< Inter-Wing Tank Inhibit
-#define GENTIE_SW1 9   ///< Gen Tie Switch
+#define GENTIE_SW1 9   ///< Gen Tie Switch                 <----------------- Change by Ulukaii
 #define DISP_SW1 A0  ///< Counter Measure Dispenser Switch
+ int status_flag = 2; // 2 means no status has been set   <------------------ Addition by Ulukaii to cover for the slightly defect potentiometer at POSI_A
 
 // Connect switches to DCS-BIOS 
 DcsBios::Potentiometer formationDimmer("FORMATION_DIMMER", FORM_A);
-DcsBios::Switch2Pos intWngTankSw("INT_WNG_TANK_SW", INTRW_SW1, true);  //added TRUE param at the end to invert switch logic
-DcsBios::Potentiometer positionDimmer("POSITION_DIMMER", FORM_A);    //Instead of Posi_A, because poti is defect
+DcsBios::Switch2Pos intWngTankSw("INT_WNG_TANK_SW", INTRW_SW1, true);  //Change by Ulukaii: added TRUE param at the end to invert switch logic
+//DcsBios::Potentiometer positionDimmer("POSITION_DIMMER", POSI_A);    //Change by Ulukaii: Double usage of Form_A, because potentiometer at Posi_A is probably defect
 DcsBios::Switch3Pos strobeSw("STROBE_SW", STROBE_SW1, STROBE_SW2);
 DcsBios::SwitchWithCover2Pos genTieSw("GEN_TIE_SW", "GEN_TIE_COVER", GENTIE_SW1);
 DcsBios::Switch2Pos cmsdDispenseBtn("CMSD_DISPENSE_BTN", DISP_SW1);
@@ -124,6 +125,18 @@ void setup() {
 * over and over in a loop, belongs in this function.
 */
 void loop() {
+
+  // At least lets get ON/OFF for the position lights on the defect dimmer
+  int positionLightValue = analogRead(POSI_A); // Read the analog value from pin A2
+  if (positionLightValue >= 1022 && status_flag !=0) {
+      //Set position lights OFF
+      sendDcsBiosMessage("POSITION_DIMMER", "0");
+      status_flag = 0;
+  } else if (positionLightValue < 1022 && status_flag != 1){
+      //Set position lights to 100%
+      sendDcsBiosMessage("POSITION_DIMMER", "45000");
+      status_flag = 1;
+  }
 
   //Run DCS Bios loop function
   DcsBios::loop();
